@@ -8,7 +8,7 @@ import { DocEntity } from "./document.entity";
 
 export enum UserRole {
     ADMIN = 'ADMIN',
-    EMPLOYE = 'EMPLOYE'
+    EMPOLYE = 'EMPOLYE'
   }
 
 
@@ -26,10 +26,12 @@ export class UserEntity extends BaseEntity {
      role:UserRole;
    @OneToMany(()=>CategorieEntity,categorie=>categorie)
     categories:CategorieEntity[];
-    @ManyToMany(()=>GroupeEntity,groupe=>groupe.users)
+    @ManyToMany(()=>GroupeEntity,groupe=>groupe.members)
     @JoinTable({name:"groupe_employe"})
-    groupes:GroupeEntity[]
+    memberGroups:GroupeEntity[];
     @OneToMany(()=>DocEntity,doc=>doc.creator)
     docs:DocEntity[];
+    @OneToMany(()=>GroupeEntity,groupe=>groupe.admin)
+    createdGroups:GroupeEntity[];
 
 }

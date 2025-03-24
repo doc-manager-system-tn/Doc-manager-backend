@@ -10,6 +10,8 @@ import { WebHookEntity } from 'src/models/webhook.entity';
 import { DocEntity } from 'src/models/document.entity';
 import { CategorieEntity } from 'src/models/categorie.entity';
 import { FeedBackEntity } from 'src/models/feedback.entity';
+import { UserController } from '../user/user.controller';
+import { UserService } from '../user/user.service';
 
 @Module({
   imports: [
@@ -24,7 +26,7 @@ import { FeedBackEntity } from 'src/models/feedback.entity';
       FeedBackEntity
     ])
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [AppController,UserController],
+  providers: [AppService,UserService],
 })
 export class AppModule {}
