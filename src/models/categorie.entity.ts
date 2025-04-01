@@ -9,7 +9,7 @@ export class CategorieEntity extends BaseEntity {
 
     @Column()
     name:string;
-    @Column()
+    @Column({ type: 'text' })
     description:string
     @ManyToOne(()=>UserEntity,user=>user.categories)
     @JoinColumn()

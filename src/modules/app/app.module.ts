@@ -12,6 +12,10 @@ import { CategorieEntity } from 'src/models/categorie.entity';
 import { FeedBackEntity } from 'src/models/feedback.entity';
 import { UserController } from '../user/user.controller';
 import { UserService } from '../user/user.service';
+import { DocController } from '../document/document.controller';
+import { DocService } from '../document/document.service';
+import { CategorieController } from '../categorie/categorie.controller';
+import { CategorieService } from '../categorie/categorie.service';
 
 @Module({
   imports: [
@@ -26,7 +30,7 @@ import { UserService } from '../user/user.service';
       FeedBackEntity
     ])
   ],
-  controllers: [AppController,UserController],
-  providers: [AppService,UserService],
+  controllers: [AppController,UserController,DocController,CategorieController],
+  providers: [AppService,UserService,DocService,CategorieService],
 })
 export class AppModule {}

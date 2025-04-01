@@ -10,9 +10,7 @@ export class UserService {
     @InjectRepository(UserEntity) private readonly userRepository: Repository<UserEntity>)
     {}
 
-  getHello(): string {
-    return 'Hello World!';
-  }
+  
 
   async createUser(user:Partial<UserEntity>):Promise<any>
   {
@@ -65,12 +63,21 @@ async getUsers(){
   return await this.userRepository.find();
 }
 
-async getUser(email:string):Promise<UserEntity|null>
+async getUserByEmail(email:string):Promise<UserEntity|null>
 {
 
   return await this.userRepository.findOne({
     where :{email}
   });
+  
+}
+async getUser(id:string):Promise<UserEntity|null>
+{
+
+  return await this.userRepository.findOne({
+    where :{id}
+  });
+  
 }
 
 

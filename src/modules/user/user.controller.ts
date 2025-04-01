@@ -1,15 +1,23 @@
-import { Controller, Get ,Post,Put,Delete,Req} from '@nestjs/common';
+import { Controller, Get ,Post,Put,Delete,Req, Param} from '@nestjs/common';
 import { UserService } from './user.service';
 import * as Bcrypt from "bcrypt";
-import { Request } from 'express';
+import { Request ,Response} from 'express';
 
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Get()
-  getmessage(){
-    return "hello";
+  @Get("/:id")
+  async getmessage(@Param("id") id:string){
+    try{
+      const user=await this.userService.getUser(id);
+      return user;
+
+    }catch(err){
+      return err;
+    }
+   
+
   }
 
   @Post()
@@ -34,7 +42,32 @@ export class UserController {
     }catch(err){
   return err;
     }
-  
+  }
+
+  @Put("/:id")
+  async updateUser(@Param("id") id:string,@Req() req:Request){
+    try{
+      const userData=req.body;
+      const newuser=await this.userService.updateUser(id,userData);
+       return newuser;
+
+    }catch(err){
+      return err;
+    }
+
+  }
+
+  @Delete("/:id")
+  async deleteUser(@Param("id") id:string){
+    try{
+     const userD=await this.userService.deleteUser(id);
+
+     return userD;
+
+    }catch(err){
+      return err;
+    }
+
   }
 
  
