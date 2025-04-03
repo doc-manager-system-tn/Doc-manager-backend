@@ -7,8 +7,9 @@ import { CategorieEntity } from "./categorie.entity";
 
 
 enum DocFormat {
-    WORD="WORD",
-    PDF="PDF"
+    pdf="pdf",
+    txt="txt",
+    docx="docx"
 }
 
 

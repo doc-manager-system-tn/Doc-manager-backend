@@ -4,9 +4,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DocEntity } from 'src/models/document.entity';
 import { BlobServiceClient, ContainerClient, BlockBlobClient } from '@azure/storage-blob';
 import { Readable } from 'stream';
-import * as Multer from "multer"
-import { Express } from 'express';
+import * as Multer from "multer";
+import { Express, Response } from 'express';
 import * as mime from 'mime-types';
+import { fileTypeFromBuffer } from 'file-type';
 
 
 @Injectable()
@@ -30,15 +31,25 @@ export class DocService {
 
     async ulploadFile(file:Express.Multer.File){
 
-      
+      const types=["doc","pdf","txt","docx"];
      const fileName = `${Date.now()}_${file.originalname}`;
       const buffer = file.buffer; // Contenu du fichier téléchargé
-      const contentType = mime.lookup(file.originalname) || 'application/octet-stream';
+     
+    
   
       try {
-        
+        const contentType = mime.lookup(file.originalname) || 'application/octet-stream';
+        let fileTypeResult = await fileTypeFromBuffer(buffer);
+      let format = fileTypeResult ? fileTypeResult.ext : mime.extension(mime.lookup(file.originalname) || '');
+
+        if(!types.includes(format)){
+        format=null;
+        }
+
+
+
         const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(fileName);
-  
+     
         
         await blockBlobClient.upload(buffer, buffer.length, {
           blobHTTPHeaders: {
@@ -46,10 +57,15 @@ export class DocService {
           },
         });
   
-       
+       const data={
+        path:blockBlobClient.url,
+        titre:fileName,
+        format
+        
+       }
         
         
-        return blockBlobClient.url; 
+        return data; 
       } catch (err) {
         return err;
       }
@@ -73,10 +89,9 @@ export class DocService {
 
     }
 
-    async createDoc(doc:Partial<DocEntity>,url:string,userId:string){
+    async createDoc(doc:Partial<DocEntity>,userId:string){
      const docComplet={
       ...doc,
-      path:url,
       creator:{
         id:userId
       }
@@ -89,6 +104,33 @@ export class DocService {
      }catch(err){
       return err;
      }
+      
+    }
+
+ 
+    async downloadFile(id:string,res:Response){
+
+       try{ 
+  const doc=await this.docRepository.findOne({
+        where:{id}
+      });
+      if(doc){
+        const fileName=doc.titre;
+        const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+        
+      
+        const downloadResponse = await blockBlobClient.download();
+        return {
+          stream: downloadResponse.readableStreamBody,
+          fileName
+        }
+      }else{
+        return null;
+      }
+      
+}catch(err){
+ return err;
+}
       
     }
     
