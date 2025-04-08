@@ -14,12 +14,12 @@ export class GroupeEntity extends BaseEntity {
 
     @Column()
     name:string;
-    @Column()
+    @Column({ type: 'text' })
     description:string;
     @Column()
     groupe_racine_id:string;
  @ManyToMany(()=>UserEntity,user=>user.memberGroups)
-  members:UserEntity[]
+  members:UserEntity[];
   @ManyToMany(()=>DocEntity,doc=>doc.groupes)
   @JoinTable({name:"groupe_doc"})
   docs:DocEntity[];

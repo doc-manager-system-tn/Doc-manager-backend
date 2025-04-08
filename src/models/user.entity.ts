@@ -24,6 +24,8 @@ export class UserEntity extends BaseEntity {
     password:string;
     @Column({type:'enum',enum:UserRole})
      role:UserRole;
+     @Column({ type: 'text', nullable: true })
+     refreshToken:string;
    @OneToMany(()=>CategorieEntity,categorie=>categorie)
     categories:CategorieEntity[];
     @ManyToMany(()=>GroupeEntity,groupe=>groupe.members)

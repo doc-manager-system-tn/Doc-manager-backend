@@ -12,11 +12,17 @@ export class UserService {
 
   
 
-  async createUser(user:Partial<UserEntity>):Promise<any>
-  {
+  async createUser(user:Partial<UserEntity>):Promise<UserEntity>
+  { try{
     const newuser=this.userRepository.create(user);
+    if(!newuser) throw new Error("la creation est échoue")
+
     this.userRepository.save(newuser);
   return newuser;
+  } catch(err){
+    throw err;
+  }
+   
   }
 
   async verifUserByemail(email:string) 
@@ -55,10 +61,15 @@ export class UserService {
 }
 
 async deleteUser(id:string){
+try{return await this.userRepository.delete(id);
 
-return await this.userRepository.delete(id);
+}catch(err){
+  throw err;
+}
+
 
 }
+
 async getUsers(){
   return await this.userRepository.find();
 }
@@ -71,12 +82,25 @@ async getUserByEmail(email:string):Promise<UserEntity|null>
   });
   
 }
-async getUser(id:string):Promise<UserEntity|null>
+async getUser(id:string):Promise<UserEntity>
 {
 
-  return await this.userRepository.findOne({
+  const user =await this.userRepository.findOne({
     where :{id}
   });
+if(!user){throw new Error("user not found")}
+  return user;
+  
+}
+async updateRefreshToken(id: string, token: string) {
+  const user = await this.getUser(id);
+  if (user){
+const newUser={
+  ...user,
+  refreshToken:token
+}
+   const newuser= await this.userRepository.update(id,newUser);
+  }
   
 }
 

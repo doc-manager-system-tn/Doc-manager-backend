@@ -4,9 +4,10 @@ import { UserEntity } from "./user.entity";
 import { FeedBackEntity } from "./feedback.entity";
 import { GroupeEntity } from "./groupe.entity";
 import { CategorieEntity } from "./categorie.entity";
+import { VersionEntity } from "./version.entity";
 
 
-enum DocFormat {
+export enum DocFormat {
     pdf="pdf",
     txt="txt",
     docx="docx"
@@ -36,6 +37,8 @@ export class DocEntity extends BaseEntity {
     @ManyToOne(()=>CategorieEntity,categorie=>categorie.docs)
     @JoinColumn()
     categorie:CategorieEntity;
+    @OneToMany(()=>VersionEntity,version=>version.doc)
+    versions:VersionEntity[];
    
 
     

@@ -16,6 +16,14 @@ import { DocController } from '../document/document.controller';
 import { DocService } from '../document/document.service';
 import { CategorieController } from '../categorie/categorie.controller';
 import { CategorieService } from '../categorie/categorie.service';
+import { VersionEntity } from 'src/models/version.entity';
+import { DocUpController } from '../document/updatedoc.controller';
+import { AuthService } from '../auth/auth.service';
+import { AuthController } from '../auth/auth.controller';
+import { JwtStrategy } from '../auth/jwt.strategy';
+import { JwtRefreshStrategy } from '../auth/jwt-refresh.strategy';
+import { AuthModule } from '../auth/auth.module';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -27,10 +35,12 @@ import { CategorieService } from '../categorie/categorie.service';
       WebHookEntity,
       DocEntity,
       CategorieEntity,
-      FeedBackEntity
-    ])
+      FeedBackEntity,
+      VersionEntity
+    ]),
+ 
   ],
-  controllers: [AppController,UserController,DocController,CategorieController],
-  providers: [AppService,UserService,DocService,CategorieService],
+  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController],
+  providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService],
 })
 export class AppModule {}

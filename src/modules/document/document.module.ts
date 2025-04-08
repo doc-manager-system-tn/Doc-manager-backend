@@ -4,7 +4,7 @@ import { DocEntity } from 'src/models/document.entity';
 import { UserEntity } from 'src/models/user.entity';
 import { DocController } from './document.controller';
 import { DocService } from './document.service';
-
+import { DocUpController } from './updatedoc.controller';
 
 
 @Module({
@@ -13,7 +13,7 @@ import { DocService } from './document.service';
      DocEntity
   ]),
 ],
-  controllers: [DocController],
+  controllers: [DocController,DocUpController],
   providers: [DocService],
 })
 export class UserModule { }

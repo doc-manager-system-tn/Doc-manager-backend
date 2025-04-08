@@ -8,6 +8,11 @@ import * as Multer from "multer";
 import { Express, Response } from 'express';
 import * as mime from 'mime-types';
 import { fileTypeFromBuffer } from 'file-type';
+import * as path from 'path';
+import * as mammoth from 'mammoth';
+import { Document, Packer, Paragraph, TextRun } from 'docx';
+
+
 
 
 @Injectable()
@@ -29,23 +34,25 @@ export class DocService {
     }
 
 
-    async ulploadFile(file:Express.Multer.File){
+   async ulploadFile(file:Express.Multer.File){
 
       const types=["doc","pdf","txt","docx"];
-     const fileName = `${Date.now()}_${file.originalname}`;
+     const fileName :string = `${Date.now()}_${file.originalname}`;
       const buffer = file.buffer; // Contenu du fichier téléchargé
-     
+      const sizeInBytes = buffer.length;
     
   
-      try {
-        const contentType = mime.lookup(file.originalname) || 'application/octet-stream';
+      try {//2 Mo=2048*1024 octet
+        if(sizeInBytes<=(2048*1024)){
+
+          const contentType = mime.lookup(file.originalname) || 'application/octet-stream';
         let fileTypeResult = await fileTypeFromBuffer(buffer);
       let format = fileTypeResult ? fileTypeResult.ext : mime.extension(mime.lookup(file.originalname) || '');
 
         if(!types.includes(format)){
         format=null;
         }
-
+     
 
 
         const blockBlobClient: BlockBlobClient = this.containerClient.getBlockBlobClient(fileName);
@@ -65,9 +72,13 @@ export class DocService {
        }
         
         
-        return data; 
+        return data;
+        }else{
+          throw new Error("la taille de document est depassé la taille limite(2Mo)"); 
+        }
+         
       } catch (err) {
-        return err;
+        throw new Error(err)
       }
   
     }
@@ -81,9 +92,12 @@ export class DocService {
           where:{id}
         }
       );
+      if(!doc){
+          throw new NotFoundException(`Doc with ID ${id} not found`); 
+      }
       return doc;
     }catch(err){
-      return err;
+      throw new Error("Erreur lors de l'extraction du document");
     }
     
 
@@ -97,12 +111,12 @@ export class DocService {
       }
      };
      try{
-      const newDoc=this.docRepository.create(docComplet);
+      const newDoc:DocEntity= this.docRepository.create(docComplet);
 
       await this.docRepository.save(newDoc);
       return newDoc
      }catch(err){
-      return err;
+      throw new Error("Erreur lors de la création du document");
      }
       
     }
@@ -133,7 +147,106 @@ export class DocService {
 }
       
     }
+    async getbufferAndF(id:string){
+      try{
+        const doc=await this.getFile(id);
+      const blockBlobClient = this.containerClient.getBlockBlobClient(doc.titre);
+      const buffer = await blockBlobClient.downloadToBuffer();
+      const format=doc.format;
+      const data={
+        buffer,
+        format
+      };
+      return data
+      }catch(err){
+        throw err;
+      }
+      
+    }
+
+    async getContentDocument(id:string){
+  try{
+    const data=await this.getbufferAndF(id);
+      if(data.buffer){
+        if(data.format==="txt"){
+          return data.buffer.toString('utf-8');
+        }else if(data.format==="docx"){
+          const buffer=data.buffer;
+          const { value: text } = await mammoth.extractRawText({buffer});
+          return text;
+        }else{
+          throw new Error('Format non supporté');
+        }
+      }
+  }catch(err){
+    throw new Error(err);
+  }
     
+    }
+
+   
+   /* async updateContentDocument(id:string,text:string){
+      try{
+        const doc=await this.getFile(id);
+        if(doc){
+
+        }
+
+      }catch(err){
+        throw new Error("le mis a jour du contenu de document n'effectue pas");
+      }
+    
+    
+    }*/
+     async  generateVirtualFile( content: string,format:string,name:string): Promise<Express.Multer.File>
+      {
+       
+        let buffer: Buffer;
+        let mimeType: string;
+       try{
+        if (format === 'txt') {
+          buffer = Buffer.from(content, 'utf-8');
+          mimeType = 'text/plain';
+        } else if (format === 'docx') {
+          const doc = new Document({
+            sections: [
+              {
+                children: content.split('\n').map(line => new Paragraph({
+                  children: [new TextRun(line)],
+                })),
+              },
+            ],
+          });
+          buffer = await Packer.toBuffer(doc);
+          mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        } else {
+          throw new Error('Format non supporté');
+        }
+      const fileName=`${name}.${format}`;
+
+       const virtualFile: Express.Multer.File = {
+          fieldname: 'file',
+          originalname: fileName,
+          encoding: '7bit',
+          mimetype: mimeType,
+          size: buffer.length,
+          buffer: buffer,
+          stream: null as any,
+          destination: '',
+          filename: fileName,
+          path: '',
+        };
+      
+        return virtualFile;
+     
+       }catch(err){
+  throw err;
+       }
+      
+        
+      }
+
+     
 
 
 }
