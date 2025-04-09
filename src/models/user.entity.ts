@@ -3,6 +3,7 @@ import { BaseEntity } from "./base.entity";
 import { CategorieEntity } from "./categorie.entity";
 import { GroupeEntity } from "./groupe.entity";
 import { DocEntity } from "./document.entity";
+import { VersionEntity } from "./version.entity";
 
 
 
@@ -35,5 +36,7 @@ export class UserEntity extends BaseEntity {
     docs:DocEntity[];
     @OneToMany(()=>GroupeEntity,groupe=>groupe.admin)
     createdGroups:GroupeEntity[];
+    @OneToMany(()=>VersionEntity,version=>version.modifier)
+    versionsD:VersionEntity[];
 
 }

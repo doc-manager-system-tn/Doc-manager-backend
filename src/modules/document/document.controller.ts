@@ -2,12 +2,15 @@ import { Controller, Get ,Post,Put,Delete,Req, Param,UseInterceptors, UploadedFi
 import { DocService } from './document.service';
 import { FileInterceptor } from '@nestjs/platform-express'
 import { Request, Response } from 'express';
-import {IResponse} from "../../common/response.interface";
+import {IDataFile, IResponse} from "../../common/response.interface";
 import { DocEntity } from 'src/models/document.entity';
+import { VersionService } from '../version/version.service';
 
 @Controller("doc")
 export class DocController {
-  constructor(private readonly docService: DocService) {}
+  constructor(private readonly docService: DocService,
+    private readonly versionService: VersionService
+  ) {}
 
   
 
@@ -16,9 +19,10 @@ export class DocController {
 async uploadDocument(@UploadedFile() file:Express.Multer.File,@Req() req:Request,@Param("id") id:string):Promise<IResponse<DocEntity>>
 {
  
-  const dataFile=await this.docService.ulploadFile(file);
-  const newDocument=await this.docService.createDoc(dataFile,id);
-
+  const dataFile:IDataFile=await this.docService.ulploadFile(file);
+  const dataDoc:Partial<DocEntity>={format:dataFile.format,titre:dataFile.titre}
+  const newDocument=await this.docService.createDoc(dataDoc,id);
+  const newversion=this.versionService.createV(dataFile.path,id,newDocument.id);
   return {data:newDocument,
      status:{code:201,
       message:"le document est crée avec succés"

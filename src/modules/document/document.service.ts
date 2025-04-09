@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DocEntity } from 'src/models/document.entity';
+import { DocEntity, DocFormat } from 'src/models/document.entity';
 import { BlobServiceClient, ContainerClient, BlockBlobClient } from '@azure/storage-blob';
 import { Readable } from 'stream';
 import * as Multer from "multer";
@@ -11,6 +11,8 @@ import { fileTypeFromBuffer } from 'file-type';
 import * as path from 'path';
 import * as mammoth from 'mammoth';
 import { Document, Packer, Paragraph, TextRun } from 'docx';
+import { IDataFile, IResponse } from 'src/common/response.interface';
+import { VersionEntity } from 'src/models/version.entity';
 
 
 
@@ -25,7 +27,8 @@ export class DocService {
 
 
   constructor(
-    @InjectRepository(DocEntity) private readonly docRepository: Repository<DocEntity>
+    @InjectRepository(DocEntity) private readonly docRepository: Repository<DocEntity>,
+    @InjectRepository(VersionEntity) private readonly versionRepository: Repository<VersionEntity>
   )
     {
       this.blobServiceClient=BlobServiceClient.fromConnectionString(this.connectionString);
@@ -34,7 +37,8 @@ export class DocService {
     }
 
 
-   async ulploadFile(file:Express.Multer.File){
+   async ulploadFile(file:Express.Multer.File):Promise<IDataFile>
+   {
 
       const types=["doc","pdf","txt","docx"];
      const fileName :string = `${Date.now()}_${file.originalname}`;
@@ -47,9 +51,9 @@ export class DocService {
 
           const contentType = mime.lookup(file.originalname) || 'application/octet-stream';
         let fileTypeResult = await fileTypeFromBuffer(buffer);
-      let format = fileTypeResult ? fileTypeResult.ext : mime.extension(mime.lookup(file.originalname) || '');
+      let format= fileTypeResult ? fileTypeResult.ext : mime.extension(mime.lookup(file.originalname) || '');
 
-        if(!types.includes(format)){
+        if(!Object.values(DocFormat).includes(format as DocFormat)){
         format=null;
         }
      
@@ -66,7 +70,7 @@ export class DocService {
   
        const data={
         path:blockBlobClient.url,
-        titre:fileName,
+        titre:file.originalname,
         format
         
        }
@@ -121,18 +125,17 @@ export class DocService {
       
     }
 
- 
-    async downloadFile(id:string,res:Response){
+ async downloadFile(id:string,res:Response){
 
        try{ 
-  const doc=await this.docRepository.findOne({
-        where:{id}
-      });
-      if(doc){
-        const fileName=doc.titre;
+  const docVersion=await this.versionRepository.findOne({
+    where:{id}
+  });
+
+
+      if(docVersion){
+        const fileName=(docVersion.path.split("/"))[4];
         const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
-        
-      
         const downloadResponse = await blockBlobClient.download();
         return {
           stream: downloadResponse.readableStreamBody,
@@ -144,9 +147,9 @@ export class DocService {
       
 }catch(err){
  return err;
-}
-      
+}   
     }
+
     async getbufferAndF(id:string){
       try{
         const doc=await this.getFile(id);
@@ -205,7 +208,7 @@ export class DocService {
         let mimeType: string;
        try{
         if (format === 'txt') {
-          buffer = Buffer.from(content, 'utf-8');
+          buffer = Buffer.from(content, 'utf-8'); 
           mimeType = 'text/plain';
         } else if (format === 'docx') {
           const doc = new Document({

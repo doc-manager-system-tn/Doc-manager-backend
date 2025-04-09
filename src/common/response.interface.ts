@@ -1,4 +1,5 @@
 import { Request } from 'express';
+import { DocFormat } from 'src/models/document.entity';
 
 
 export interface IResponse<T> {
@@ -14,6 +15,11 @@ export interface IResponse<T> {
   export interface IMessage {
     message: string;
     code: number;
+  }
+  export interface IDataFile {
+    path:string,
+    format:DocFormat|null,
+    titre:string
   }
 
   // src/interfaces/request.interface.ts

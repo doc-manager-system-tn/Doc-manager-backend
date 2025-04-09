@@ -24,6 +24,10 @@ import { JwtStrategy } from '../auth/jwt.strategy';
 import { JwtRefreshStrategy } from '../auth/jwt-refresh.strategy';
 import { AuthModule } from '../auth/auth.module';
 import { JwtService } from '@nestjs/jwt';
+import { VersionController } from '../version/version.controlller';
+import { GroupeController } from '../groupe/groupe.controller';
+import { VersionService } from '../version/version.service';
+import { GroupeService } from '../groupe/groupe.service';
 
 @Module({
   imports: [
@@ -40,7 +44,7 @@ import { JwtService } from '@nestjs/jwt';
     ]),
  
   ],
-  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController],
-  providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService],
+  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController],
+  providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService,VersionService,GroupeService],
 })
 export class AppModule {}

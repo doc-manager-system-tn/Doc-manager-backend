@@ -23,8 +23,8 @@ export class DocEntity extends BaseEntity {
     titre:string;
     @Column()
     path:string;
-    @Column({type:"enum",enum:DocFormat})
-    format:DocFormat;
+    @Column({type:"enum",enum:DocFormat,nullable:true})
+    format:DocFormat|null;
     @Column({default:0})
     nb_utilisation:number;
     @OneToMany(()=>FeedBackEntity,fedb=>fedb.doc)
