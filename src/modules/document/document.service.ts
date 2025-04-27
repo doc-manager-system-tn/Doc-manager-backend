@@ -14,6 +14,7 @@ import { IDataFile, IResponse } from 'src/common/response.interface';
 import { VersionEntity } from 'src/models/version.entity';
 import { fileTypeFromBuffer } from 'file-type';
 import { StatsService } from '../stats/stats.service';
+import htmlToDocx from 'html-to-docx';
 
 
 
@@ -300,15 +301,12 @@ export class DocService {
       buffer = Buffer.from(content, 'utf-8');
       mimeType = 'text/plain';
     } else if (format === 'docx') {
-      const doc = new Document({
-        sections: [
-          {
-            children: content.split('\n').map(line => this.parseLineToTextRuns(line)),
-          },
-        ],
+      buffer = await htmlToDocx(content, null, {
+        table: { row: { cantSplit: true } },
+        footer: false,
+        pageNumber: false,
       });
 
-      buffer = await Packer.toBuffer(doc);
       mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     } else {
       throw new Error('Format non supporté');

@@ -19,10 +19,10 @@ return {
     }
 }
 }
-@Get("/:id")
+/*@Get("/:id")
 async verif(@Param("id" ) id:string){
     return await this.statsService.verifD(id);
-}
+}*/
 
 
 }

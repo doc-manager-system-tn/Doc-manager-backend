@@ -2,6 +2,7 @@ import { Column, Entity ,OneToMany,ManyToOne,ManyToMany, JoinTable, JoinColumn} 
 import { BaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
 import { DocEntity } from "./document.entity";
+import { AccessEntity } from "./access.entity";
 
 
 
@@ -26,9 +27,10 @@ export class GroupeEntity extends BaseEntity {
   @ManyToOne(()=>UserEntity,user=>user.createdGroups)
   @JoinColumn({name:"admin_id"})
   admin:UserEntity;
-  @ManyToMany(() => UserEntity,user=>user.pendingGroupe)
-@JoinTable({ name: "groupe_pending_user" })
-pendingUser: UserEntity[];
+  //@OneToMany(() => UserEntity,user=>user.pendingGroupe)
+//pendingUsers: UserEntity[];
+@OneToMany(()=>AccessEntity,access=>access.groupe)
+accessGroupes:AccessEntity[];
 
     
 

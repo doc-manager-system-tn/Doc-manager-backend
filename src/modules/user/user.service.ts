@@ -2,9 +2,9 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from 'src/models/user.entity';
-import { UserStatus } from 'src/models/user.entity';
 import { UserRole } from 'src/models/user.entity';
 import { GroupeService } from '../groupe/groupe.service';
+import { UserStatus } from 'src/models/access.entity';
 @Injectable()
 export class UserService {
 
@@ -18,20 +18,10 @@ export class UserService {
 
   async createUser(user:Partial<UserEntity>):Promise<UserEntity>
   { try{
-    const {role}=user;
-    if(!role) throw new Error("le role n'a pas mentione !")
-    const status = role === UserRole.ADMIN
-      ? UserStatus.APPROVED
-      : UserStatus.PENDING;
-      const dataComplet={
-        ...user,
-        status
-      }
-   const newuser=this.userRepository.create(dataComplet);      
+   const newuser=this.userRepository.create(user);      
     if(!newuser) throw new Error("la creation est échoue")
 
-      this.userRepository.save(newuser);
-    return newuser;
+      return await this.userRepository.save(newuser);
 
    
   } catch(err){
@@ -93,7 +83,7 @@ async getUserByEmail(email:string):Promise<UserEntity|null>
 {
 
   return await this.userRepository.findOne({
-    where :{email}
+    where :{email},
   });
   
 }
@@ -120,7 +110,33 @@ const newUser={
   }
   
 }
+/*async approvedM(userId:string,desc:boolean){
+  try{
+    const user=await this.getUser(userId);
+    if(desc){   user.status=UserStatus.APPROVED;
+    }else{
+      user.status=UserStatus.REJECTED;
+    }
+     await this.userRepository.save(user);
+     }catch(err){
+      throw err;
+     }
+  }*/
+ /*async getCreatedG(adminId:string){
+  try{
+    const admin=this.userRepository.findOne({
+      where:{id:adminId},
+      relations:['createdGroups']
+    });
+    if(!admin) throw new Error("admin not found !")
+      return admin;
+  }catch(err){
+    throw err
+  }
+  
 
+ }*/
+  
 
 
 

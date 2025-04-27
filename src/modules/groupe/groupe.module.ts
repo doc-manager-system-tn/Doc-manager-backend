@@ -15,4 +15,4 @@ import { VerifGroupeController } from './verifGroupe.controller';
   controllers: [GroupeController,VerifGroupeController],
   providers: [GroupeService],
 })
-export class ApplicationModule { }
+export class GroupeModule { }

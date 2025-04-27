@@ -48,22 +48,11 @@ return {
   data:groupe,
   status:{
     code:200,
-    message:"les information de cet est bien extracter" 
+    message:"les information de cet groupe est bien extracter" 
   }
 }
 }
-@Get("groupes/:id")
-async getGroupes(@Param("id") id:string):Promise<IResponse<GroupeEntity>>
-{
-const groupes=await this.groupeService.getGroupeByadmin(id);
-return {
-  data:groupes,
-  status:{
-    code:200,
-    message:"les information de cet est bien extracter" 
-  }
-}
-}
+
 
 
 

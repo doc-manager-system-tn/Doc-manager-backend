@@ -1,10 +1,11 @@
-import { Column, Entity ,JoinColumn,JoinTable,ManyToMany,OneToMany} from "typeorm";
+import { Column, Entity ,JoinColumn,JoinTable,ManyToMany,ManyToOne,OneToMany} from "typeorm";
 import { BaseEntity } from "./base.entity";
 import { CategorieEntity } from "./categorie.entity";
 import { GroupeEntity } from "./groupe.entity";
 import { DocEntity } from "./document.entity";
 import { VersionEntity } from "./version.entity";
 import { FeedBackEntity } from "./feedback.entity";
+import { AccessEntity } from "./access.entity";
 
 
 
@@ -12,12 +13,6 @@ export enum UserRole {
     ADMIN = 'ADMIN',
     EMPOLYE = 'EMPOLYE'
   }
-  export enum UserStatus {
-    PENDING = 'pending',
-    APPROVED = 'approved',
-    REJECTED = 'rejected',
-  }
-  
 
 
 @Entity("employee")
@@ -33,8 +28,8 @@ export class UserEntity extends BaseEntity {
      role:UserRole;
      @Column({ type: 'text', nullable: true })
      refreshToken:string;
-     @Column({type:'enum',enum:UserStatus , nullable: true })
-     status:UserStatus;
+    // @Column({type:'enum',enum:UserStatus , nullable: true })
+     //status:UserStatus;
    @OneToMany(()=>CategorieEntity,categorie=>categorie)
     categories:CategorieEntity[];
     @ManyToMany(()=>GroupeEntity,groupe=>groupe.members)
@@ -48,7 +43,11 @@ export class UserEntity extends BaseEntity {
     versionsD:VersionEntity[];
     @OneToMany(()=>FeedBackEntity,feedb=>feedb.creator)
     feeds:FeedBackEntity[];
-    @ManyToMany(() => GroupeEntity, groupe => groupe.pendingUser)
- pendingGroupe: GroupeEntity[];
+   /* @ManyToOne(() => GroupeEntity, groupe => groupe.pendingUsers)
+    @JoinColumn({name:"pending_groupeId"})
+ pendingGroupe: GroupeEntity;*/
+ @OneToMany(()=>AccessEntity,access=>access.user)
+ accessUsers:AccessEntity[];
+   
 
 }

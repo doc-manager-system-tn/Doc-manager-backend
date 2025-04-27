@@ -9,10 +9,12 @@ import { UserEntity, UserRole } from 'src/models/user.entity';
 import { DeleteResult } from 'typeorm';
 import { Public } from '../auth/decorateur/public.decorateur';
 import { GroupeService } from '../groupe/groupe.service';
+import { AccessService } from '../access/access.service';
 @Controller("user")
 export class UserController {
   constructor(private readonly userService: UserService,
-    private readonly groupeService:GroupeService
+    private readonly groupeService:GroupeService,
+    private readonly accessService:AccessService,
   ) {}
 
 /*@UseGuards(JwtAccessGuard)
@@ -53,7 +55,7 @@ export class UserController {
       }
       const newuser=await this.userService.createUser(userObject);
       if(role===UserRole.EMPOLYE){
-        await this.groupeService.addPendingUser(newuser.id,groupeName);
+      await this.accessService.createAccess(groupeName,newuser.id);
       }
       
       return {

@@ -38,6 +38,12 @@ import { FirebaseService } from '../scoket/firebase/firebase.service';
 import { StatsEntity } from 'src/models/stats.entity';
 import { StatsController } from '../stats/stats.controller';
 import { StatsService } from '../stats/stats.service';
+import { MAILER_OPTIONS, MailerModule, MailerService } from '@nestjs-modules/mailer';
+import { MailerOptions } from '@nestjs-modules/mailer';
+import { AccessEntity } from 'src/models/access.entity';
+import { AccessService } from '../access/access.service';
+import { AccessController } from '../access/access.controller';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -51,16 +57,19 @@ import { StatsService } from '../stats/stats.service';
       FeedBackEntity,
       VersionEntity,
       FeedBackEntity,
-      StatsEntity
+      StatsEntity ,
+      AccessEntity
     ]),
  
+ 
   ],
-  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController],
+  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController,AccessController],
   providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService,VersionService,GroupeService,
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
-    },FeedbackService,SocketGateway, FirebaseService,StatsService
+    },FeedbackService,SocketGateway, FirebaseService,StatsService,AccessService
+   
   ],
 
 })

@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Admin, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GroupeEntity } from 'src/models/groupe.entity';
 import { UserService } from '../user/user.service';
 import { DocService } from '../document/document.service';
 import { UserEntity } from 'src/models/user.entity';
-
+import { FindOptionsWhere } from 'typeorm';
 @Injectable()
 export class GroupeService {
 
@@ -44,7 +44,7 @@ export class GroupeService {
  async getGroupe(id:string){
   try{
     const groupe=await this.groupeRepository.findOne({
-      where:{id:id}, relations: ['admin','members','docs','pendingUser'], 
+      where:{id:id}, relations: ['admin','members','docs'], 
     });
     console.log("groupe :"+groupe);
     if(!groupe){
@@ -90,7 +90,6 @@ try{
 throw err;
 }
  }
-
  async isMembre(groupeId:string,userId:string):Promise<boolean>
 {
   try{
@@ -146,30 +145,48 @@ if(i===0){
   throw err;
   }
  }
- async getGroupeByadmin(adminId:string):Promise<GroupeEntity[]>
+ async getCompanyByadmin(adminId:string):Promise<GroupeEntity[]>
  {
   try{
+    
  const groupes =await this.groupeRepository.find({
   where:{
     admin:{id:adminId}
-  }
+  },
+  relations: ["admin","members"]
  });
  if(!groupes) throw new Error("il n'y a pas aucun groupe");
- return groupes
+ 
+
+ const companys:GroupeEntity[]=[];
+
+for(const groupe of groupes){
+  if(groupe.groupe_racine_id===null){
+    companys.push(groupe);
+  }
+}
+if(!companys) throw new Error("il n'y a pas aucun company");
+
+
+  return companys;
+ 
+ 
+ 
   }catch(err){
     throw err;
   }
  }
- async addPendingUser(userId:string,groupeName:string){
+
+ /*async addPendingUser(userId:string,groupeName:string){
   try{
  const user=await this.userService.getUser(userId);
  const groupe=await this.groupeRepository.findOne({
   where:{name:groupeName},
   relations:['pendingUser']
  });
- if(!groupe!) throw new Error("groupe not found !");
+ if(!groupe) throw new Error("groupe not found !");
  if(groupe.groupe_racine_id===null){
-  groupe.pendingUser.push(user);
+  groupe.pendingUsers.push(user);
   await this.groupeRepository.save(groupe);
 
  }else{
@@ -180,6 +197,33 @@ if(i===0){
 throw err;
   }
  }
+*/
+async getAllSubGroups(groupId: string): Promise<GroupeEntity[]> {
+  try {
+    // Fonction récursive pour obtenir tous les sous-groupes d'un groupe
+    const getSubGroupsRecursively = async (parentGroupId: string): Promise<GroupeEntity[]> => {
+      const subGroups = await this.groupeRepository.find({
+        where: {
+          groupe_racine_id: parentGroupId, // Recherche les sous-groupes du groupe actuel
+        },
+      });
+
+      // Pour chaque sous-groupe trouvé, on continue à chercher ses sous-groupes
+      let allSubGroups = [...subGroups]; // On commence par ajouter les sous-groupes du niveau actuel
+      for (const subGroup of subGroups) {
+        const subSubGroups = await getSubGroupsRecursively(subGroup.id); // Recherche récursive
+        allSubGroups = [...allSubGroups, ...subSubGroups]; // Ajouter les sous-sous-groupes
+      }
+      return allSubGroups;
+    };
+
+    // Obtenir les sous-groupes pour le groupe de départ
+    const allSubGroups1 = await getSubGroupsRecursively(groupId);
+    return allSubGroups1;
+  } catch (err) {
+    throw err;
+  }
+}
 
 
   }

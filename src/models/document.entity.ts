@@ -22,8 +22,6 @@ export class DocEntity extends BaseEntity {
 
     @Column()
     titre:string;
-   /* @Column()
-    path:string;*/
     @Column({type:"enum",enum:DocFormat,nullable:true})
     format:DocFormat|null;
     @OneToMany(()=>StatsEntity,stat=>stat.doc)
