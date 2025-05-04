@@ -23,7 +23,7 @@ export class UserController {
   async getmessage(@Param("id") id:string):Promise<IResponse<UserEntity>>
   {
     try{
-      const user=await this.userService.getUser(id);
+      const user=await this.userService.getUser1(id);
       return {
         data:user,
         status:{code:200,
@@ -44,26 +44,41 @@ export class UserController {
     const hashpassword =await Bcrypt.hash(req.body.password,10);
       const userExist=await this.userService.verifUserByemail(req.body.email);
       const {username,email,role,groupeName}=req.body;
+      let newuser1:UserEntity;
       const userObject={
       username,
       password:hashpassword,
       role,
       email
       };
+    
       if(!userExist){
-        throw new Error("vous étes deja enregistre");
-      }
-      const newuser=await this.userService.createUser(userObject);
-      if(role===UserRole.EMPOLYE){
-      await this.accessService.createAccess(groupeName,newuser.id);
-      }
-      
-      return {
-        data:newuser,
-        status:{code:201,
-          message:"l'utilisateur est crée avec succes"
+        if(role===UserRole.ADMIN){
+          throw new Error("vous étes deja enregistre");
+        }else{
+          newuser1=await this.userService.getUserByEmail(req.body.email);
+          await this.accessService.createAccess(groupeName,newuser1.id);
+          return {
+            data:newuser1,
+            status:{code:201,
+              message:"l'utilisateur est crée avec succes"
+            }
+          };
         }
-      };
+       
+      }else{
+      
+        newuser1=await this.userService.createUser(userObject);
+        if(role===UserRole.EMPOLYE){
+          await this.accessService.createAccess(groupeName,newuser1.id);
+        }
+        return {
+          data:newuser1,
+          status:{code:201,
+            message:"l'utilisateur est crée avec succes"
+          }
+        };
+      }
       
   }
 

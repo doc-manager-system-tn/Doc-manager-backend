@@ -6,6 +6,7 @@ import { DocEntity } from "./document.entity";
 import { VersionEntity } from "./version.entity";
 import { FeedBackEntity } from "./feedback.entity";
 import { AccessEntity } from "./access.entity";
+import { NotificationEntity } from "./notification";
 
 
 
@@ -48,6 +49,7 @@ export class UserEntity extends BaseEntity {
  pendingGroupe: GroupeEntity;*/
  @OneToMany(()=>AccessEntity,access=>access.user)
  accessUsers:AccessEntity[];
-   
+ @OneToMany(()=>NotificationEntity,not=>not.recipient)
+  notifications:NotificationEntity[];
 
 }

@@ -7,6 +7,7 @@ import { DocEntity } from 'src/models/document.entity';
 import { VersionService } from '../version/version.service'; 
 import { VersionEntity } from 'src/models/version.entity';
 import { StatsService } from '../stats/stats.service';
+import { Public } from '../auth/decorateur/public.decorateur';
 
 @Controller("updateDoc")
 export class DocUpController {
@@ -31,6 +32,20 @@ export class DocUpController {
     }
    };
   }
+@Get("/docsBycreator/:id")
+async getDocsByCreator(@Param("id") id:string):Promise<IResponse<DocEntity>>
+{
+const docs=await this.docService.getDocsBycreator(id);
+return {
+  data:docs,
+  status:{
+    code:200,
+    message:"les docs est bien extractes"
+  }
+}
+
+
+}
 
   @Post("/:id")
 async createVFile(@Req() req:Request,@Param("id") id:string):Promise<IResponse</*Partial<DocEntity>*/VersionEntity>>
@@ -42,7 +57,7 @@ async createVFile(@Req() req:Request,@Param("id") id:string):Promise<IResponse</
   return {
     data:newversion, 
     status:{code:201,
-      message:"le document est crée avec sucess" 
+      message:"le document est crée avec sucess"  
     }
   }
 

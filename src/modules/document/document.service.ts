@@ -14,7 +14,7 @@ import { IDataFile, IResponse } from 'src/common/response.interface';
 import { VersionEntity } from 'src/models/version.entity';
 import { fileTypeFromBuffer } from 'file-type';
 import { StatsService } from '../stats/stats.service';
-import htmlToDocx from 'html-to-docx';
+const htmlToDocx = require('html-to-docx');
 
 
 
@@ -306,12 +306,12 @@ export class DocService {
         footer: false,
         pageNumber: false,
       });
-
+      console.log(buffer)
       mimeType = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
     } else {
       throw new Error('Format non supporté');
     }
-
+   
     const fileName = `${name}.${format}`;
 
     const virtualFile: Express.Multer.File = {
@@ -360,7 +360,23 @@ export class DocService {
         }
       
       }*/
-
+async getDocsBycreator(userId:string){
+  try{
+    const docs=this.docRepository.find({
+      where:{
+        creator:{
+        id:userId
+      }},
+      relations:['groupes','creator','versions']
+  
+    });
+    if(!docs) throw new Error("il n'y a pas des docs creé avec ce user");
+    return docs;
+  }catch(err){
+    throw err;
+  }
+ 
+}
      
 
 

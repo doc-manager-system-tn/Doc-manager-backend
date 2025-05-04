@@ -34,3 +34,9 @@ export interface AuthenticatedRequest extends Request {
     
   };
 }
+export interface GroupeComplet<T> {
+ courrentGroupe:T|null,
+ parentGroupeN:string|null,
+ companyGroupe:T|null
+
+}

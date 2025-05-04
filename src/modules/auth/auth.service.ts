@@ -17,7 +17,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m',  // expiration de 15 minutes pour l'Access Token
+      expiresIn: '45m',  // expiration de 15 minutes pour l'Access Token
     });
 
     const refreshToken = this.jwtService.sign(payload, {
@@ -35,7 +35,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
-      expiresIn: '15m',  // expiration de 15 minutes pour l'Access Token
+      expiresIn: '45m',  // expiration de 15 minutes pour l'Access Token
     });
 
     

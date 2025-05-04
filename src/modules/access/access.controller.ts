@@ -1,4 +1,4 @@
-import { Controller, Get ,Param,Put,Query} from '@nestjs/common';
+import { Controller, Get ,Param,Put,Query,Req} from '@nestjs/common';
 import { Public } from '../auth/decorateur/public.decorateur';
 import { IResponse } from 'src/common/response.interface';
 import { GroupeService } from '../groupe/groupe.service';
@@ -6,7 +6,7 @@ import { UserService } from '../user/user.service';
 import { AccessService } from './access.service';
 import { GroupeEntity } from 'src/models/groupe.entity';
 import { AccessEntity } from 'src/models/access.entity';
-
+import { Request } from 'express';
 
 @Controller("access")
 export class AccessController {
@@ -15,9 +15,9 @@ export class AccessController {
       private readonly accessService:AccessService) {}
 
 @Put("/approvedU")
-async appproveU(@Query("adminId") adminId:string,@Query("groupeId") groupeId:string,@Query("userId") userId:string):Promise<IResponse<GroupeEntity>>
-{
-     await this.accessService.addApproved(groupeId,userId);
+async appproveU(@Req() req:Request):Promise<IResponse<GroupeEntity>>
+{    const {adminId,groupeId,userId}=req.body;
+       await this.accessService.addApproved(groupeId,userId)
      const newgroupe=await this.groupeService.addM(userId,groupeId,adminId);
 return {
  data:newgroupe,
@@ -27,10 +27,11 @@ return {
 } 
 }
 }
+
 @Get("/:id")
 async getAccessByAdmin(@Param("id") id:string):Promise<IResponse<AccessEntity[]>>
 {
-    const groupes=await this.accessService.getAccessByadmin(id);
+    const groupes=await this.accessService.getAccessByadmin(id); 
 return {
  data:groupes,
  status:{
@@ -40,6 +41,19 @@ return {
 }
 }
 
+@Get("byEmpolyeAndGroupe/:id")
+async getAccess(@Req() req:Request):Promise<IResponse<AccessEntity>>
+{
+  const {nameGroupe,email}=req.body;
+    const access=await this.accessService.getAccess(nameGroupe,email);
+return {
+ data:access,
+ status:{
+ code:200,
+ message:`les informations de cet autorisation sont bien extractes`
+} 
+}
+}
 
 }
 

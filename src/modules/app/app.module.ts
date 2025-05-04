@@ -43,7 +43,11 @@ import { MailerOptions } from '@nestjs-modules/mailer';
 import { AccessEntity } from 'src/models/access.entity';
 import { AccessService } from '../access/access.service';
 import { AccessController } from '../access/access.controller';
-
+import { join } from 'path'
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { NotificationEntity } from 'src/models/notification';
+import { NotificationService } from '../notification/notification.service';
+import { NotificationController } from '../notification/notification.controller';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -58,18 +62,21 @@ import { AccessController } from '../access/access.controller';
       VersionEntity,
       FeedBackEntity,
       StatsEntity ,
-      AccessEntity
+      AccessEntity,
+      NotificationEntity
     ]),
  
- 
   ],
-  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController,AccessController],
+  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController,AccessController,NotificationController],
   providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService,VersionService,GroupeService,
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
-    },FeedbackService,SocketGateway, FirebaseService,StatsService,AccessService
+    },FeedbackService,SocketGateway, FirebaseService,StatsService,AccessService,NotificationService
    
+
+
+
   ],
 
 })

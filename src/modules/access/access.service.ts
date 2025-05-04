@@ -48,7 +48,7 @@ try{
     if (groupe.groupe_racine_id !== null) throw new Error("Ce groupe n'est pas une entreprise (groupe racine)");
 
     const access = await this.accessRepository.findOne({
-      where: {
+      where: { 
         user: { id: userId },
         groupe: { id: groupeId },
       },
@@ -100,6 +100,25 @@ async getAccessByadmin(adminId: string): Promise<AccessEntity[]> {
   
       return allAccess;
     } catch (err) {
+      throw err;
+    }
+  }
+  async getAccess(nameGroupe:string,userId:string):Promise<AccessEntity>
+  {
+    try{
+    const access=await this.accessRepository.findOne({
+      where:{
+        user:{
+          id:userId
+        },
+        groupe:{
+          name:nameGroupe
+        }
+      }
+    });
+    if(!access) throw new Error("cet user n'acun access sur le ce groupe la !")
+      return access;
+    }catch(err){
       throw err;
     }
   }

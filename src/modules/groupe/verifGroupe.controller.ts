@@ -1,7 +1,7 @@
 import { Request ,Response} from 'express';
 import {  Controller, Get ,Post,Put,Delete,Req, Param,UseInterceptors, UploadedFile,Res,Body, Query} from '@nestjs/common';
 import { JwtAccessGuard } from '../auth/jwt-access.guard';
-import { AuthenticatedRequest, IResponse } from 'src/common/response.interface';
+import { AuthenticatedRequest, IResponse ,GroupeComplet} from 'src/common/response.interface';
 import { GroupeService } from './groupe.service';
 import { GroupeEntity } from 'src/models/groupe.entity';
 import { UserService } from '../user/user.service';
@@ -16,7 +16,7 @@ export class VerifGroupeController {
     private readonly accessService:AccessService
   ) {} 
 
-  @Get("/isMembre")
+  @Post("/isMembre")
   async verif(@Req() req:Request){
   const {userId,groupeId}=req.body;
   const isMembre=await this.groupeService.isMembre(groupeId,userId);
@@ -48,10 +48,51 @@ return {
  
 }
 }
+@Get("/groupeComplet/:id")
+async getDataGroupeC(@Param("id") id:string):Promise<IResponse<GroupeComplet<GroupeEntity>>>
+{
+const dataGroupe=await this.groupeService.getGroupesByadmin(id);
+return {
+  data:dataGroupe,
+  status:{
+    code:200,
+    message:"les information de cet groupe est bien extracter" 
+  }
+}
+}
+
+@Get("/getGroupes/:id")
+async getGroupes1(@Param("id") id:string):Promise<IResponse<GroupeEntity>>
+{
+const groupes=await this.groupeService.getgroupes1Byadmin(id);
+return {
+  data:groupes,
+  status:{
+    code:200,
+    message:"tous les sous groupes de cet admin est bien retourner"
+  }
+}
+
+}
+
+@Get("/getAllGbyAdmin/:id")
+async getAllgroupes(@Param("id") id:string):Promise<IResponse<GroupeEntity>>
+{
+const groupes=await this.groupeService.getAllGroupes(id);
+return {
+  data:groupes,
+  status:{
+    code:200,
+    message:"tous les groupes de cet admin est bien retourner"
+  }
+}
+
+}
 
 @Put("/addD")
-async addDoc(@Query("docId") docId:string,@Query("groupeId") groupeId:string,@Query("userId") userId:string):Promise<IResponse<GroupeEntity>>
+async addDoc(@Req() req:Request):Promise<IResponse<GroupeEntity>>
 {
+  const {groupeId,userId,docId}=req.body;
 const newgroupe=await this.groupeService.addD(groupeId,docId,userId);
 return {
  data:newgroupe,

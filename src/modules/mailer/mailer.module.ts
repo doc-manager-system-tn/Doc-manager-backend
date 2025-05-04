@@ -1,34 +1,40 @@
-/*import { Module } from '@nestjs/common';
-import { MailerModule } from '@nestjs-modules/mailer';
+/*import { Module ,DynamicModule} from '@nestjs/common';
+import { MailerModule, MailerService } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailService } from './mailer.service';
 import { join } from 'path';
+import { MailerController } from './mailer.controller';
+import { ConfigModule,ConfigService } from '@nestjs/config';
+import { MailerOptions } from '@nestjs-modules/mailer';
 
-@Module({
-  imports: [
-    MailerModule.forRoot({
-      transport: {
-        host: 'smtp.example.com', // Remplacez par votre hôte SMTP (ex. Gmail, SendGrid)
-        port: 587,
-        secure: false, // true pour 465, false pour autres ports
-        auth: {
-          user: 'mohamedazizwerhani@gmail.com', // Votre adresse e-mail
-          pass: 'aziz12345678', // Votre mot de passe ou clé API
-        },
-      },
-      defaults: {
-        from: '"No Reply" <mohamedazizwerhani@gmail.com>', // Expéditeur par défaut
-      },
-      template: {
-        dir: join(__dirname, 'templates'), // Dossier des templates
-        adapter: new HandlebarsAdapter(), // Adaptateur pour Handlebars
-        options: {
-          strict: true,
-        },
-      },
-    }),
-  ],
-  providers: [MailService],
-  exports: [MailService], // Exporter le service pour l'utiliser ailleurs
-})
-export class MailModule {}*/
+@Module({})
+export class MailerConfigModule {
+  static forRoot(): DynamicModule {
+    return {
+      module: MailerConfigModule,
+      imports: [
+        ConfigModule.forRoot(), // pour lire .env
+        MailerModule.forRootAsync({
+          imports: [ConfigModule],
+          useFactory: async (configService: ConfigService): Promise<MailerOptions> => ({
+            transport: {
+              host: "smtp.gmail.com",
+              port: 587,
+              secure: false,
+              auth: {
+                user: "mohamedazizwerhani@gmail.com",
+                pass: "1234",
+              },
+            },
+            defaults: {
+              from: `"No Reply" <mohamedazizwerhani@gmail.com>`,
+            },
+          }),
+          inject: [ConfigService],
+        }),
+      ],
+      controllers:[MailerController],
+      providers:[MailService,MailerService]
+    };
+  }
+}*/

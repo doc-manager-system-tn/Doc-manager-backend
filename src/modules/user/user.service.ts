@@ -79,19 +79,31 @@ async getUsers(){
   return await this.userRepository.find();
 }
 
-async getUserByEmail(email:string):Promise<UserEntity|null>
+async getUserByEmail(email:string):Promise<UserEntity>
 {
 
-  return await this.userRepository.findOne({
+  const user= await this.userRepository.findOne({
     where :{email},
   });
-  
+  if(!user) throw new Error("user not found")
+  return user;
 }
 async getUser(id:string):Promise<UserEntity>
 {
 
   const user =await this.userRepository.findOne({
     where :{id}
+  });
+if(!user){throw new Error("user not found")}
+  return user;
+  
+}
+async getUser1(id:string):Promise<UserEntity>
+{
+
+  const user =await this.userRepository.findOne({
+    where :{id},
+    relations:['memberGroups']
   });
 if(!user){throw new Error("user not found")}
   return user;

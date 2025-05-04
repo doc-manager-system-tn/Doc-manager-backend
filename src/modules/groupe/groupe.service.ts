@@ -6,6 +6,8 @@ import { UserService } from '../user/user.service';
 import { DocService } from '../document/document.service';
 import { UserEntity } from 'src/models/user.entity';
 import { FindOptionsWhere } from 'typeorm';
+import { GroupeComplet, IResponse } from 'src/common/response.interface';
+import { error } from 'console';
 @Injectable()
 export class GroupeService {
 
@@ -46,7 +48,6 @@ export class GroupeService {
     const groupe=await this.groupeRepository.findOne({
       where:{id:id}, relations: ['admin','members','docs'], 
     });
-    console.log("groupe :"+groupe);
     if(!groupe){
       throw new Error("groupe not found");
       }
@@ -176,6 +177,7 @@ if(!companys) throw new Error("il n'y a pas aucun company");
     throw err;
   }
  }
+ 
 
  /*async addPendingUser(userId:string,groupeName:string){
   try{
@@ -206,6 +208,7 @@ async getAllSubGroups(groupId: string): Promise<GroupeEntity[]> {
         where: {
           groupe_racine_id: parentGroupId, // Recherche les sous-groupes du groupe actuel
         },
+        relations:['members']
       });
 
       // Pour chaque sous-groupe trouvé, on continue à chercher ses sous-groupes
@@ -223,6 +226,127 @@ async getAllSubGroups(groupId: string): Promise<GroupeEntity[]> {
   } catch (err) {
     throw err;
   }
+}
+async findRootCompany(groupe: GroupeEntity, allGroupes: GroupeEntity[]):Promise<GroupeEntity|null>
+ {
+  let current:GroupeEntity = groupe;
+  while (current.groupe_racine_id) {
+    const parent = allGroupes.find(g => g.id === current.groupe_racine_id);
+    if (!parent) break;
+    current = parent;
+  }
+  //return this.getGroupe(current?.id);
+  const currentId=current.id;
+  const newCurrent=await this.groupeRepository.findOne({
+    where:{id:currentId},
+    relations:['admin', 'members','docs']
+  })
+  if(!newCurrent) return null;
+    return newCurrent
+  
+}
+
+async getGroupesByadmin(adminId: string) :Promise<GroupeComplet<GroupeEntity>[]>
+{
+  try {
+    const groupes = await this.groupeRepository.find({
+      where: {
+        admin: { id: adminId }
+      },
+      relations: ['admin', 'members','docs']
+    });
+
+    if (!groupes || groupes.length === 0) {
+      throw new Error("Il n'y a aucun groupe.");
+    }
+
+    const allGroupes = await this.groupeRepository.find(); // pour retrouver les parents et companies
+
+   /* const groupesA: GroupeComplet<GroupeEntity>[] =[] ;
+    groupes.map(async (groupe )=> {
+      const parent = allGroupes.find(g => g.id === groupe.groupe_racine_id);
+      const company = await  this.findRootCompany(groupe, allGroupes);
+          
+       const datagroupe:GroupeComplet<GroupeEntity>={
+        courrentGroupe: groupe,
+        parentGroupeN:parent?parent.name:null,
+        companyGroupe: company
+      };
+      //console.log(datagroupe);
+      if(datagroupe.courrentGroupe?.groupe_racine_id!==null){
+        groupesA.push(datagroupe);
+      }
+     
+
+    });*/
+    const groupesA = await Promise.all(groupes
+     // .filter(g => g.groupe_racine_id !== null) // filtre ici si nécessaire
+      .map(async (groupe) => {
+        const parent = allGroupes.find(g => g.id === groupe.groupe_racine_id);
+        const company = await this.findRootCompany(groupe, allGroupes);
+
+        const datagroupe: GroupeComplet<GroupeEntity> = {
+          courrentGroupe: groupe,
+          parentGroupeN: parent ? parent.name : null,
+          companyGroupe: company
+        };
+
+        return datagroupe;
+      })
+    );
+console.log(groupesA)
+    return groupesA;
+
+  } catch (err) {
+    throw err;
+  }
+}
+async getgroupes1Byadmin(adminId:string):Promise<GroupeEntity[]>
+ {
+  try{
+    
+ const groupes =await this.groupeRepository.find({
+  where:{
+    admin:{id:adminId}
+  },
+  relations: ["admin","members"]
+ });
+ if(!groupes) throw new Error("il n'y a pas aucun groupe");
+ 
+
+ const companys:GroupeEntity[]=[];
+
+for(const groupe of groupes){
+  if(groupe.groupe_racine_id!==null){
+    companys.push(groupe);
+  }
+}
+if(!companys) throw new Error("il n'y a pas aucun company");
+
+
+  return companys;
+ 
+ 
+ 
+  }catch(err){
+    throw err;
+  }
+ }
+
+  async getAllGroupes(adminId:string){
+ try{
+  const groupes=await this.groupeRepository.find({
+    where:{
+      admin:{
+        id:adminId
+      }
+    }
+  });
+  if(!groupes) throw new Error("cet admin n'aucun groupe !");
+  return groupes;
+ }catch(err){
+  throw err;
+ }
 }
 
 

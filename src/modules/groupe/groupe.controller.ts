@@ -1,7 +1,7 @@
 import { Request ,Response} from 'express';
 import {  Controller, Get ,Post,Put,Delete,Req, Param,UseInterceptors, UploadedFile,Res,Body, Query} from '@nestjs/common';
 import { JwtAccessGuard } from '../auth/jwt-access.guard';
-import { AuthenticatedRequest, IResponse } from 'src/common/response.interface';
+import { AuthenticatedRequest, GroupeComplet, IResponse } from 'src/common/response.interface';
 import { GroupeService } from './groupe.service';
 import { GroupeEntity } from 'src/models/groupe.entity';
 
@@ -57,8 +57,9 @@ return {
 
 
 @Put("/addM")
-async addMembre(@Query("userId") userId:string,@Query("groupeId") groupeId:string,@Query("adminId") adminId:string):Promise<IResponse<GroupeEntity>>
+async addMembre(@Req() req:Request):Promise<IResponse<GroupeEntity>>
 {
+  const {userId,groupeId,adminId}=req.body;
 const newgroupe=await this.groupeService.addM(userId,groupeId,adminId);
 return {
  data:newgroupe,
