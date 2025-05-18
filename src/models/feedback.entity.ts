@@ -11,9 +11,9 @@ import { UserEntity } from "./user.entity";
 @Entity("feedback")
 export class FeedBackEntity extends BaseEntity {
 
-    @Column()
+    @Column({nullable:true})
     commentaire:string;
-    @Column()
+    @Column({default:0})
     race:number;
     @ManyToOne(()=>DocEntity,doc=>doc.fedbs)
     @JoinColumn()

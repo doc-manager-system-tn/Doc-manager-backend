@@ -8,12 +8,15 @@ import { VersionService } from '../version/version.service';
 import { VersionEntity } from 'src/models/version.entity';
 import { StatsService } from '../stats/stats.service';
 import { Public } from '../auth/decorateur/public.decorateur';
+import { WebhookEvent } from 'src/models/webhook.entity';
+import { WebHookService } from '../webhook/webhook.service';
 
 @Controller("updateDoc")
 export class DocUpController {
   constructor(private readonly docService: DocService,
     private readonly versionService: VersionService,
-    private readonly statsService:StatsService
+    private readonly statsService:StatsService,
+     private readonly webhookService:WebHookService
   ) {}
 
 
@@ -44,6 +47,20 @@ return {
   }
 }
 
+}
+
+@Get("/docsByMandCr/:id")
+async getDocsByUser(@Param("id") id:string):Promise<IResponse<DocEntity>>
+{
+const docs=await this.docService.findDocsForUser(id);
+return {
+  data:docs,
+  status:{
+    code:200,
+    message:"les docs est bien extractes"
+  }
+}
+
 
 }
 
@@ -54,6 +71,7 @@ async createVFile(@Req() req:Request,@Param("id") id:string):Promise<IResponse</
   const file=await this.docService.generateVirtualFile(content,format,filename); 
  const datafile=await this.docService.ulploadFile(file);
  const newversion=await this.versionService.createV(datafile.path,modifier_id,id);
+ await this.webhookService.triggerEvent(WebhookEvent.DOCUMENT_UPDATED,id);//webhook
   return {
     data:newversion, 
     status:{code:201,

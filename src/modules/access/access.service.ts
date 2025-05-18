@@ -103,25 +103,36 @@ async getAccessByadmin(adminId: string): Promise<AccessEntity[]> {
       throw err;
     }
   }
-  async getAccess(nameGroupe:string,userId:string):Promise<AccessEntity>
+  async getAccess(nameGroupe:string,email:string):Promise<AccessEntity>
   {
     try{
     const access=await this.accessRepository.findOne({
       where:{
         user:{
-          id:userId
+       email
         },
         groupe:{
           name:nameGroupe
         }
       }
     });
-    if(!access) throw new Error("cet user n'acun access sur le ce groupe la !")
+    if(!access) throw new Error("cet user n'aucun access sur le ce groupe la !")
       return access;
     }catch(err){
       throw err;
     }
   }
-  
+  async getAcessById(id:string){
+  try{
+    const access=await this.accessRepository.findOne({
+      where:{id},
+      relations:['groupe']
+    });
+    if(!access) throw new Error("n'aucun access avec cet identifinat !");
+    return access;
+  }catch(err){
+    throw err;
+  }
+}
 }
 

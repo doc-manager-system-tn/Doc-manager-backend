@@ -3,6 +3,7 @@ import { BaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
 import { DocEntity } from "./document.entity";
 import { AccessEntity } from "./access.entity";
+import { WebHookEntity } from "./webhook.entity";
 
 
 
@@ -31,6 +32,8 @@ export class GroupeEntity extends BaseEntity {
 //pendingUsers: UserEntity[];
 @OneToMany(()=>AccessEntity,access=>access.groupe)
 accessGroupes:AccessEntity[];
+@ManyToMany(()=>WebHookEntity,webhook=>webhook.groupes)
+webhooks:WebHookEntity[];
 
     
 

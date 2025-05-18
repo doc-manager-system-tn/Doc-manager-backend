@@ -8,6 +8,10 @@ import { DocUpController } from './updatedoc.controller';
 import { StatsService } from '../stats/stats.service';
 import { StatsModule } from '../stats/stats.module';
 import { VersionService } from '../version/version.service';
+import { OpenAIError } from 'openai';
+import { OpenRouterController } from './doc.generate.controller';
+import { OpenRouterService } from './doc.generate.service';
+
 
 
 
@@ -18,7 +22,7 @@ import { VersionService } from '../version/version.service';
   ]),
 
 ],
-  controllers: [DocController,DocUpController],
-  providers: [DocService,StatsService,VersionService],
+  controllers: [DocController,DocUpController,OpenRouterController],
+  providers: [DocService,StatsService,VersionService,OpenRouterService],
 })
 export class DocModule { }

@@ -33,9 +33,8 @@ export class DocEntity extends BaseEntity {
     @ManyToOne(()=>UserEntity,user=>user.docs)
     @JoinColumn({name:"creator_id"})
     creator:UserEntity;
-    @ManyToOne(()=>CategorieEntity,categorie=>categorie.docs)
-    @JoinColumn()
-    categorie:CategorieEntity;
+    @ManyToMany(()=>CategorieEntity,categorie=>categorie.docs)
+    categories:CategorieEntity[];
     @OneToMany(()=>VersionEntity,version=>version.doc)
     versions:VersionEntity[]; 
 

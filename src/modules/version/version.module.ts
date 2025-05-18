@@ -12,4 +12,4 @@ import { VersionController } from './version.controlller';
   controllers: [VersionController],
   providers: [VersionController],
 })
-export class ApplicationModule { }
+export class VersionModule { }

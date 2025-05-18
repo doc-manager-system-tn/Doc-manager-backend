@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DocEntity, DocFormat } from 'src/models/document.entity';
 import { BlobServiceClient, ContainerClient, BlockBlobClient } from '@azure/storage-blob';
@@ -14,6 +14,7 @@ import { IDataFile, IResponse } from 'src/common/response.interface';
 import { VersionEntity } from 'src/models/version.entity';
 import { fileTypeFromBuffer } from 'file-type';
 import { StatsService } from '../stats/stats.service';
+import { GroupeEntity } from 'src/models/groupe.entity';
 const htmlToDocx = require('html-to-docx');
 
 
@@ -30,7 +31,7 @@ export class DocService {
   constructor(
     @InjectRepository(DocEntity) private readonly docRepository: Repository<DocEntity>,
     @InjectRepository(VersionEntity) private readonly versionRepository: Repository<VersionEntity>,
-   
+    @InjectRepository(GroupeEntity) private readonly groupeEntity: Repository<GroupeEntity>,
   )
     {
       this.blobServiceClient=BlobServiceClient.fromConnectionString(this.connectionString);
@@ -120,11 +121,11 @@ export class DocService {
      };
      try{
       const newDoc:DocEntity= this.docRepository.create(docComplet);
-
-      await this.docRepository.save(newDoc);
-      return newDoc
+     if(!newDoc) throw new Error("Erreur lors de la création du document")
+      const newDoc1=await this.docRepository.save(newDoc);
+      return newDoc1;
      }catch(err){
-      throw new Error("Erreur lors de la création du document");
+      throw err;
      }
       
     }
@@ -367,7 +368,7 @@ async getDocsBycreator(userId:string){
         creator:{
         id:userId
       }},
-      relations:['groupes','creator','versions']
+      relations:['groupes','creator','versions','categories']
   
     });
     if(!docs) throw new Error("il n'y a pas des docs creé avec ce user");
@@ -377,6 +378,27 @@ async getDocsBycreator(userId:string){
   }
  
 }
+
+async findDocsForUser(userId: string): Promise<DocEntity[]> {
+  // Récupérer les groupes où l'utilisateur est membre
+  try{
+    return this.docRepository
+    .createQueryBuilder('doc')
+    .leftJoinAndSelect('doc.creator', 'creator')
+    .leftJoinAndSelect('doc.categories', 'categories')
+    .leftJoinAndSelect('doc.versions', 'versions')
+    .leftJoinAndSelect('doc.groupes', 'groupes')
+    .leftJoinAndSelect('groupes.members', 'members')
+    .where('creator.id = :userId', { userId })
+    .orWhere('members.id = :userId', { userId })
+    .getMany();
+  }catch(err){
+    throw err;
+  }
+    
+}
+
+
      
 
 

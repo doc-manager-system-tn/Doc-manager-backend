@@ -16,18 +16,18 @@ export class FeedbackService {
   )
     {}
 
-    async createF(dataFeedb:FeedBackEntity,docId:string,userId:string):Promise<FeedBackEntity>
+    async createF(commentaire:string,docId:string,userId:string):Promise<FeedBackEntity>
     {
       try{
       const datacomplet={
-        ...dataFeedb,
+        commentaire,
         doc:{id:docId},
         creator:{id:userId}
       }     
 const newFeed=this.feedbackRepository.create(datacomplet);
 //await this.docservice.incNbUse(docId);
-  await this.feedbackRepository.save(newFeed);
-  return newFeed;
+  const newFeed1=await this.feedbackRepository.save(newFeed);
+  return newFeed1;
       } catch(err){
 throw err;
       } 
@@ -37,13 +37,26 @@ async getF(feedId:string){
   try{
 const feed=await this.feedbackRepository.findOne({
   where:{id:feedId},
-  relations:['doc']
+  relations:['doc','creator']
 });
 if(!feed) throw new Error("feedBack not found!");
 return feed;
   }catch(err){
 throw err;
   }
+}
+async getAllF(){
+  try{
+const feeds=await this.feedbackRepository.find(
+  {relations:['doc','creator']}
+);
+
+return feeds;
+  }catch(err){
+    throw err;
+  }
+  
+  
 }
    
    async deleteF(userId:string,feedId:string):Promise<void>

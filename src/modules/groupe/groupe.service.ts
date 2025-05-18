@@ -208,7 +208,7 @@ async getAllSubGroups(groupId: string): Promise<GroupeEntity[]> {
         where: {
           groupe_racine_id: parentGroupId, // Recherche les sous-groupes du groupe actuel
         },
-        relations:['members']
+        relations:['members','webhooks']
       });
 
       // Pour chaque sous-groupe trouvé, on continue à chercher ses sous-groupes

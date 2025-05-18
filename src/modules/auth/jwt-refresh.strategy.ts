@@ -23,7 +23,7 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
       refreshToken:token
     };
     req.user=user
-  console.log(user)
+  //console.log(user)
     return user;
   }
 }

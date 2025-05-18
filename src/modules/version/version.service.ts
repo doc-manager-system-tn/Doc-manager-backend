@@ -48,7 +48,7 @@ export class VersionService {
         try{
             const version=await this.versionRepository.findOne({
                 where:{id:vesrionId},
-                relations:['docs']
+                relations:['doc']
             });
             if(!version) throw new Error("version not found !");
             return version;

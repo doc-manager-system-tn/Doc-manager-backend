@@ -13,10 +13,11 @@ export class FeedbackController {
 
 
 @Post()
-async createF(@Req() req:Request,@Query("userId") userID:string,@Query("docId") docId:string):Promise<IResponse<FeedBackEntity>>
+async createF(@Req() req:Request):Promise<IResponse<FeedBackEntity>>
 {
-  const dataFeedB=req.body;
-const newFeedb=await this.feedbackService.createF(dataFeedB,docId,userID);
+  const {docId,userId,commentaire}=req.body;
+
+const newFeedb=await this.feedbackService.createF(commentaire,docId,userId);
  await this.statsService.updateUsageStats(newFeedb.doc?.id);
 return {
   data:newFeedb,
@@ -26,6 +27,18 @@ return {
   }
 }
 }
+@Get()
+async getAll():Promise<IResponse<FeedBackEntity>>
+{
+  const feedbs=await this.feedbackService.getAllF();
+  return {
+    data:feedbs,
+    status:{
+      code:200,
+      message:"les information sont extractes avec succés"
+    }
+  }
+  }
 @Get("/:id")
 async getF(@Param("id") id:string):Promise<IResponse<FeedBackEntity>>
 {

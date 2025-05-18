@@ -48,6 +48,15 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { NotificationEntity } from 'src/models/notification';
 import { NotificationService } from '../notification/notification.service';
 import { NotificationController } from '../notification/notification.controller';
+import { OpenRouterService } from '../document/doc.generate.service';
+import { OpenRouterController } from '../document/doc.generate.controller';
+import { WebHookService } from '../webhook/webhook.service';
+import { WebHookController } from '../webhook/webhook.controller';
+import { MailService } from '../mailer/mailer.service';
+import { MailController } from '../mailer/mailer.controller';
+
+
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -65,14 +74,15 @@ import { NotificationController } from '../notification/notification.controller'
       AccessEntity,
       NotificationEntity
     ]),
+  
  
   ],
-  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController,AccessController,NotificationController],
+  controllers: [AppController,UserController,DocController,CategorieController,DocUpController,AuthController,VersionController,GroupeController,VerifGroupeController,FeedbackController,StatsController,AccessController,NotificationController,OpenRouterController,WebHookController,MailController],
   providers: [AppService,UserService,DocService,CategorieService,AuthService,JwtRefreshStrategy,JwtStrategy,JwtService,VersionService,GroupeService,
     {
       provide: APP_GUARD,
       useClass: JwtAccessGuard,
-    },FeedbackService,SocketGateway, FirebaseService,StatsService,AccessService,NotificationService
+    },FeedbackService,SocketGateway, FirebaseService,StatsService,AccessService,NotificationService,OpenRouterService,WebHookService,MailService
    
 
 

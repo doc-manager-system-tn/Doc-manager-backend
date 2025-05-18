@@ -1,18 +1,17 @@
-/*import { Controller, Get } from '@nestjs/common';
-import { MailService } from './mailer.service'
+import { Controller, Get, Query, Req } from '@nestjs/common';
+import { MailService } from './mailer.service';
+import { Request } from 'express';
+import { Public } from '../auth/decorateur/public.decorateur';
 
-@Controller('test')
-export class MailerController {
+@Controller('mail')
+export class MailController {
   constructor(private readonly mailService: MailService) {}
-
-  @Get('send-email')
-  async sendTestEmail() {
-    await this.mailService.sendMail(
-      'mohamedazizwerhani@gmail.com',
-      'Bienvenue chez nous',
-      'welcome',
-      { name: 'Utilisateur Test' },
-    );
-    return 'E-mail envoyé !';
+  
+  @Get('send')
+  async send(@Req() req:Request) {
+    const {to,username, companyName}=req.body;
+    await this.mailService.sendEmail(to, username, companyName);
+    return { message: 'Email envoyé avec succès' };
   }
-}*/
+}
+

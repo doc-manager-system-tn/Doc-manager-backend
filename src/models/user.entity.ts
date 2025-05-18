@@ -7,6 +7,7 @@ import { VersionEntity } from "./version.entity";
 import { FeedBackEntity } from "./feedback.entity";
 import { AccessEntity } from "./access.entity";
 import { NotificationEntity } from "./notification";
+import { WebHookEntity } from "./webhook.entity";
 
 
 
@@ -31,7 +32,7 @@ export class UserEntity extends BaseEntity {
      refreshToken:string;
     // @Column({type:'enum',enum:UserStatus , nullable: true })
      //status:UserStatus;
-   @OneToMany(()=>CategorieEntity,categorie=>categorie)
+   @OneToMany(()=>CategorieEntity,categorie=>categorie.user)
     categories:CategorieEntity[];
     @ManyToMany(()=>GroupeEntity,groupe=>groupe.members)
     @JoinTable({name:"groupe_employe"})
@@ -51,5 +52,7 @@ export class UserEntity extends BaseEntity {
  accessUsers:AccessEntity[];
  @OneToMany(()=>NotificationEntity,not=>not.recipient)
   notifications:NotificationEntity[];
+  @OneToMany(()=>WebHookEntity,wh=>wh.user)
+  webHooks:WebHookEntity[];
 
 }

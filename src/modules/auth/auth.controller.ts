@@ -34,9 +34,14 @@ export class AuthController {
 const access=await this.accessService.getAccess(nameG,email);
 if(!access) throw new Error("vous n'avez un access");
     const user = await this.authService.login(email,password);
+    const dataUser={ 
+      ...user,
+      accessId:access?.id 
+    }
+       
 
     return {
-      data:user,
+      data:dataUser,
       status:{code:201,
         message:"vous étes connecter"
       }

@@ -1,23 +1,36 @@
-/*import { Injectable } from '@nestjs/common';
-import { MailerService } from '@nestjs-modules/mailer';
-
+import { Injectable } from '@nestjs/common';
+import * as sgMail from '@sendgrid/mail';
+import * as handlebars from 'handlebars';
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class MailService {
-  constructor(private readonly mailerService: MailerService) {}
-
-  async sendMail(to: string, subject: string, template: string, context: any) {
-    try {
-      await this.mailerService.sendMail({
-        to,
-        subject,
-        template, // Nom du fichier de template sans l'extension (ex. 'welcome')
-        context, // Variables à passer au template
-      });
-      console.log(`E-mail envoyé à ${to}`);
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi de l\'e-mail:', error);
-      throw error;
-    }
+   private apiKey:string=String(process.env.SENDGRID_API_KEY)
+  constructor() {
+    sgMail.setApiKey(this.apiKey); // Stocke ta clé en sécurité dans .env
   }
-}*/
+
+  async sendEmail(to: string,username:string,companyName:string) {
+    try{
+    // Charger le modèle HTML
+    const templatePath = "C:\\Users\\moham\\OneDrive\\Documents\\DocManager\\server\\src\\modules\\mailer\\welcome.html"
+    const templateSource = fs.readFileSync(templatePath, 'utf-8');
+    console.log(templateSource);
+    // Compiler le template Handlebars avec les variables dynamiques
+    const template = handlebars.compile(templateSource);
+    const htmlContent = template({ username, companyName });
+
+      const msg = {
+        to,
+        from: 'mohamedaziz.werhani@eniso.u-sousse.tn', // doit être vérifiée ou appartenir à un domaine authentifié
+        subject:"Accès accordé - DocManager",
+        html:htmlContent,
+      };
+      await sgMail.send(msg);
+    }catch(err){
+      throw err;
+    }
+    
+  }
+}
 
