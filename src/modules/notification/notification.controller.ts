@@ -1,4 +1,4 @@
-import { Controller, Get ,Post,Put,Delete,Req, Param} from '@nestjs/common';
+import { Controller, Get ,Post,Put,Delete,Req, Param, Patch} from '@nestjs/common';
 import { Request ,Response} from 'express';
 import { UseGuards } from '@nestjs/common';
 import { JwtAccessGuard } from '../auth/jwt-access.guard';
@@ -49,6 +49,32 @@ async getNbyAdminAndUser(@Req() req:Request):Promise<IResponse<NotificationEntit
         message:"les notifictions sont bien extracter"
     }
    }
+}
+
+@Get("/byRecipient/:userId/groupe/:groupeName")
+async getNbyRec(@Param("userId") userId:string,@Param("groupeName") groupeName:string):Promise<IResponse<NotificationEntity>>
+{
+    const notifications=await this.notService.getNotByRecipient(userId,groupeName);
+   return {
+    data :notifications,
+    status:{
+        code:200,
+        message:"les notifictions sont bien extracter"
+    }
+   }
+}
+
+@Patch("/:id")
+async rendreIsRead(@Param("id") id:string):Promise<IResponse<NotificationEntity>>
+{
+    const not=await this.notService.rendreIsR(id);
+  return {
+    data:not,
+    status:{
+        code:200,
+        message:"cette notification marque comme lu !"
+    }
+  }
 }
 
 }

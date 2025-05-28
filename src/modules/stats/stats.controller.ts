@@ -7,8 +7,8 @@ import { StatsEntity } from 'src/models/stats.entity';
 export class StatsController {
   constructor(private readonly statsService: StatsService) {}
 
-@Get()
-async getAllS(@Query("docId") docId:string,@Query("nbP") nbP:number):Promise<IResponse<StatsEntity>>
+@Get("/:docId/periode/:nbP")
+async getAllS(@Param("docId") docId:string,@Param("nbP") nbP:number):Promise<IResponse<StatsEntity>>
 {
 const stats=await this.statsService.getStatsForLastPeriod(docId,nbP);
 return {

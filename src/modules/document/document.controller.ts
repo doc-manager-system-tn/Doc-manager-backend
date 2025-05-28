@@ -8,6 +8,7 @@ import { VersionService } from '../version/version.service';
 import { StatsService } from '../stats/stats.service';
 import { WebHookService } from '../webhook/webhook.service';
 import { WebhookEvent } from 'src/models/webhook.entity';
+import { VersionEntity } from 'src/models/version.entity';
 
 @Controller("doc")
 export class DocController {
@@ -50,6 +51,25 @@ await this.webhookService.triggerEvent(WebhookEvent.DOCUMENT_DOWNLOADED,docId);/
         resultas.stream?.on('end', () => {
           console.log('Le fichier a été téléchargé avec succès.');
         });
+  // `le document d'id :${id} est bien telechargé`;
+
+}
+
+@Get("download1/:id")
+async downloadDoc1(@Param("id") id:string):Promise<IResponse<VersionEntity>>
+{
+const version=await this.versionService.getV(id);
+const docId=version?.doc?.id;//incremente le nb_use
+await this.statsService.updateUsageStats(docId);
+await this.webhookService.triggerEvent(WebhookEvent.DOCUMENT_DOWNLOADED,docId);//webhook
+ return {
+  data:version,
+  status:{
+    code:200,
+    message:"Le fichier a été téléchargé avec succès."
+  }
+ }
+        
   // `le document d'id :${id} est bien telechargé`;
 
 }

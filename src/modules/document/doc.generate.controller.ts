@@ -7,7 +7,7 @@ import { OpenRouterService } from './doc.generate.service';
 export class OpenRouterController {
   constructor(private readonly openRouterService: OpenRouterService) {}
 
-  @Public()
+  
   @Post()
   async chat(@Body('prompt') prompt: string): Promise<IResponse<any>> {
     const response = await this.openRouterService.ask(prompt);

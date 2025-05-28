@@ -8,9 +8,12 @@ import { DocEntity } from "./document.entity";
 export class NotificationEntity extends BaseEntity {
 
     @Column('text')
-    message: string;  
+    message: string;
+    @Column({default:false,type:'boolean'})
+    isRead:boolean  
     @ManyToOne(()=>UserEntity,{ nullable: true })//admin de notification 
     sender:UserEntity;
    @ManyToOne(()=>UserEntity,user=>user.notifications, { onDelete: 'CASCADE' })
    recipient:UserEntity;
+
 }

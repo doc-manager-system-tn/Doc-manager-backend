@@ -8,20 +8,20 @@ export class OpenRouterService {
   // remplace par ton token
 
   async ask(prompt: string)/*: Promise<string>*/ {
-    const details:string="en utilisant le format HTML avec des balises , et en incluant des styles CSS pour la couleur et la taille du texte directement dans les balises du <body> (comme <h2 style='color: #e67e23; font-weight: bold;'>, <p style='font-size: 10pt;'> et autres) ? et tu peux utliser n'import quel coleur il n' ya un couleur spécifique et dans la balise body je veux pas des style je veux a l'interieur de body comme ca <body>//code  </body> et je veux pas voir le <!DOCTYPE html> ,<html>,<head> juste le <body>//code  </body> ";
+    const details:string=`Génère uniquement le contenu HTML suivant le format demandé :Donne-moi uniquement un bloc HTML contenant la balise <body> avec à l’intérieur du texte de ${prompt}. Utilise des balises <h2> et <p> avec des styles CSS directement dans chaque balise (ex: <h2 style=>, <p style=>).Aucune autre balise ne doit être incluse, pas de <html>, <head> ou <!DOCTYPE html>.N'inclus aucun commentaire, aucune explication, aucun message supplémentaire.Réponds uniquement avec le code HTML comme dans l'exemple <body> ... </body>`;
     try {
       const response = await axios.post(
         this.API_URL,
         {
-          model: /*'mistralai/mixtral-8x7b'*/'openrouter/auto',
+          model: /*'mistralai/mixtral-8x7b   openrouter/auto'*/'mistralai/mistral-7b-instruct',
           messages: [
-            { role: 'user', content: `${prompt}  ${details}` }
+            { role: 'user', content: details }
           ],
           max_tokens: 800
         },
         {
           headers: {
-            'Authorization': `Bearer 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`,
+            'Authorization': `Bearer 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`,
             'Content-Type': 'application/json',
             'HTTP-Referer': 'http://localhost:3000', // optionnel, mais recommandé
             'X-Title': 'MyApp', 
@@ -41,7 +41,7 @@ export class OpenRouterService {
     }
   }
  async getBody(content:string){
-    const body=content?.split("<body>")[1];
+    const body=content?.split("<body")[1];
     console.log(content)
 
    return body
